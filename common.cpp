@@ -3,16 +3,6 @@
 
 namespace reflectioncpp
 {
-	Named::Named(const std::string name) : name(name)
-	{
-
-	} 
-
-	const std::string& Named::GetName() const
-	{
-		return name;
-	}
-
 	namespace internal
 	{
 		// 64-bit hash for 64-bit platforms
@@ -115,11 +105,14 @@ namespace reflectioncpp
 
 			return h;
 		}
+	}
 
+	namespace utility
+	{
 		// Redirect to the hash function (determined by the enable_if constructs)
 		uint64_t hash ( const void * key, int len, size_t seed )
 		{
-			return MurmurHash2_64(key, len, seed);
+			return internal::MurmurHash2_64(key, len, seed);
 		}
 	}
 }

@@ -1,4 +1,3 @@
-#include "common.hpp"
 #include "type.hpp"
 
 // Export the character types

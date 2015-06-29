@@ -11,17 +11,17 @@
 namespace reflectioncpp \
 { \
 	constexpr const char* __typeinfo_name_##NAME = "" #NAME "" ; \
-	constexpr const size_t __typeinfo_namelength_##NAME = internal::const_strlen(__typeinfo_name_##NAME); \
-	TypeCode __typeinfo_id_##NAME = internal::hash(__typeinfo_name_##NAME, __typeinfo_namelength_##NAME); \
+	constexpr const size_t __typeinfo_namelength_##NAME = utility::const_strlen(__typeinfo_name_##NAME); \
+	TypeCode __typeinfo_id_##NAME = utility::hash(__typeinfo_name_##NAME, __typeinfo_namelength_##NAME); \
 	\
 	template<> \
-	const char* TypeInfo<TYPE>::GetName() \
+	const char* Type<TYPE>::GetName() \
 	{ \
 		return __typeinfo_name_##NAME; \
 	} \
 	\
 	template<> \
-	const reflectioncpp::TypeCode TypeInfo<TYPE>::GetHashCode() \
+	const reflectioncpp::TypeCode Type<TYPE>::GetTypeCode() \
 	{ \
 		return __typeinfo_id_##NAME; \
 	} \
@@ -34,10 +34,10 @@ namespace reflectioncpp
 
 	// Our custom internal type tracker
 	template <typename T>
-	struct TypeInfo
+	struct Type
 	{
 		static const char* GetName();
-		static const TypeCode GetHashCode();
+		static const TypeCode GetTypeCode();
 	};
 }
 

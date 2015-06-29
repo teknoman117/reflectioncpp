@@ -6,7 +6,7 @@
 
 namespace reflectioncpp
 {
-	namespace internal
+	namespace utility
 	{
 		// Constant strlen
 		constexpr size_t const_strlen(const char *str, const int idx = 0)
@@ -14,18 +14,9 @@ namespace reflectioncpp
 			return (str[idx] == '\0') ? idx : const_strlen(str, idx+1);
 		}
 
-		// MurmurHash2 64 bit function, used for string hashing
+		// MurmurHash2 64 bit (https://sites.google.com/site/murmurhash/)
 		uint64_t hash ( const void * key, int len, size_t seed = static_cast<size_t>(0xc70f6907UL));
 	}
-
-	// A named object
-	class Named
-	{
-		const std::string name;
-	public:
-		Named(const std::string name);
-		const std::string& GetName() const;
-	};
 }
 
 #endif

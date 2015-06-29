@@ -28,12 +28,12 @@ public:
 
 	std::string Name() const override
 	{
-		return TypeInfo<T>::GetName();
+		return Type<T>::GetName();
 	}
 
 	TypeCode Identifier() const override
 	{
-		return TypeInfo<T>::GetHashCode();
+		return Type<T>::GetTypeCode();
 	}
 };
 
@@ -65,7 +65,7 @@ public:
 	static MetaType* Get()
 	{
 		boost::shared_lock<boost::shared_mutex> lock(Instance().databaseAccess);
-		return Instance().database[TypeInfo<T>::GetHashCode()];
+		return Instance().database[Type<T>::GetTypeCode()];
 	}
 };
 
@@ -86,7 +86,7 @@ int main (int argc, char** argv)
 	MetaType *metadata = MetaTypeDatabase::Get<Herp>();
 	MetaType *integer = MetaTypeDatabase::Get<int>();
 
-	std::cout << TypeInfo<int>::GetName() << ": " << TypeInfo<int>::GetHashCode() << std::endl;
+	std::cout << Type<int>::GetName() << ": " << Type<int>::GetTypeCode() << std::endl;
 
 	std::cout << integer->Name() << ": " << integer->Identifier() << std::endl;
 
