@@ -77,14 +77,6 @@ struct Herp
 };
 EXPORT_TYPEINFO(Herp, Herp)
 
-// Constant strlen
-constexpr size_t const_strlen(const char *str, const int idx = 0)
-{
-	return (str[idx] == '\0') ? idx : const_strlen(str, idx+1);
-}
-constexpr const char *aString = "I like pie";
-constexpr size_t aStringLength = const_strlen(aString);
-
 
 int main (int argc, char** argv)
 {

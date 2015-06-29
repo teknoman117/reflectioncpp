@@ -10,11 +10,12 @@
 #define EXPORT_TYPEINFO(TYPE, NAME) \
 namespace reflectioncpp \
 { \
-	static std::string __typeinfo_name_##NAME = "" #NAME "" ; \
-	static TypeCode __typeinfo_id_##NAME = internal::hash(__typeinfo_name_##NAME.c_str(), __typeinfo_name_##NAME.size()); \
+	constexpr const char* __typeinfo_name_##NAME = "" #NAME "" ; \
+	constexpr const size_t __typeinfo_namelength_##NAME = internal::const_strlen(__typeinfo_name_##NAME); \
+	TypeCode __typeinfo_id_##NAME = internal::hash(__typeinfo_name_##NAME, __typeinfo_namelength_##NAME); \
 	\
 	template<> \
-	const std::string& TypeInfo<TYPE>::GetName() \
+	const char* TypeInfo<TYPE>::GetName() \
 	{ \
 		return __typeinfo_name_##NAME; \
 	} \
@@ -35,7 +36,7 @@ namespace reflectioncpp
 	template <typename T>
 	struct TypeInfo
 	{
-		static const std::string& GetName();
+		static const char* GetName();
 		static const TypeCode GetHashCode();
 	};
 }
