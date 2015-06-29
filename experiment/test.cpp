@@ -5,19 +5,20 @@
 #include <exception>
 #include <stdexcept>
 #include <tuple>
+#include <string>
 
 #include "Variant.hpp"
 
 using namespace std;
 
 // Method invoke base class
-class Method
+/*class Method
 {
 public:
     // Can we use templates to handle the void return case
     virtual Variant Invoke(void *instance, vector<Variant> params) const = 0;
     virtual Variant Invoke(void *instance) const = 0;
-};
+};*/
 
 // Method invoke implementation
 template<class,class>
@@ -26,6 +27,7 @@ class MethodImpl;
 template<class T, class R, class... Args>
 class MethodImpl<T, R(Args...)>
 {
+public:
     typedef R (T::*PointerType)(Args...);
     PointerType methodPointer;
 public:
@@ -96,14 +98,31 @@ public:
 
 class A
 {
+public:
     int value;
+
 public:
     A() : value(0) {}
 
     void Set(int a) {value = a;}
     int Get() {return value;}
     void Increment() {value++;};
+
+    static void Herp()
+    {
+        std::cout << "Herp Derp" << std::endl;
+    }
+
+    int operator()()
+    {
+        return value;
+    }
 };
+
+void Derp()
+{
+    std::cout << "Derp Derp" << std::endl;
+}
 
 
 int main ()
@@ -115,10 +134,25 @@ int main ()
     Variant bP(&b);
 
     MethodImpl<A, void(int)>  _set(&A::Set);
-    MethodImpl<A, int(void)>  _get(&A::Get);
-    MethodImpl<A, void(void)> _increment(&A::Increment);
+    MethodImpl<A, int()>  _get(&A::Get);
+    MethodImpl<A, void()> _increment(&A::Increment);
+
+    MethodImpl<A, int()> _function(&A::operator());
+
+    // This is a thing?
+    MethodImpl<A, void(int)>::PointerType pointer = &A::Set;
+    MethodImpl<A, void()>::PointerType p2 = reinterpret_cast<MethodImpl<A, void()>::PointerType>(pointer);
 
     A test;
+
+    int A::* derp = &A::value;
+
+    int& hurr = test.*derp;
+
+    int *herp = &(test.*derp);
+
+    void (*durr)(void) = &A::Herp;
+
     cout << "value: " << _get.Invoke((void *) &test) << endl;
 
     const vector<Variant> args = {bP};
@@ -126,7 +160,9 @@ int main ()
 
     cout << "value: " << _get.Invoke((void *) &test) << endl;
     _increment.Invoke((void *) &test);
-    cout << "value: " << _get.Invoke((void *) &test) << endl;
+    cout << "value: " << _function.Invoke((void *) &test) << endl;
+
+
 
     return 0;
 }
