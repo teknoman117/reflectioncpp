@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <tuple>
 #include <string>
+#include <functional>
 
 #include "Variant.hpp"
 
@@ -129,6 +130,9 @@ int main ()
 {
     int a = 5;
     int b = 7;
+
+    std::cout << "test: " << std::hash<std::string>()(std::string("int")) << std::endl;
+    std::cout << "test: " << sizeof(unsigned int) << std::endl;
 
     Variant aP(&a);
     Variant bP(&b);
