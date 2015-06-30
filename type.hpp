@@ -4,6 +4,7 @@
 #include <string>
 #include <cinttypes>
 #include <cassert>
+#include <type_traits>
 
 #include "common.hpp"
 
@@ -31,6 +32,13 @@ namespace reflectioncpp
 {
 	// The typeid object
 	typedef uint64_t TypeCode;
+
+	// Type cleanup utility
+	template <typename T>
+	struct TypeCleaner
+	{
+		typedef std::remove_reference<std::remove_cv<T> > type;
+	};
 
 	// Our custom internal type tracker
 	template <typename T>
