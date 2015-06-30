@@ -14,6 +14,18 @@ namespace reflectioncpp
 			return (str[idx] == '\0') ? idx : const_strlen(str, idx+1);
 		}
 
+		template <class T>
+		struct recursive_remove_pointer
+		{
+		    typedef T type;
+		};
+
+		template <class T>
+		struct recursive_remove_pointer<T*>
+		{
+		    typedef typename recursive_remove_pointer<T>::type type;
+		};
+
 		// MurmurHash2 64 bit (https://sites.google.com/site/murmurhash/)
 		uint64_t hash ( const void * key, int len, size_t seed = static_cast<size_t>(0xc70f6907UL));
 	}

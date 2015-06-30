@@ -157,6 +157,22 @@ int main ()
 
     void (*durr)(void) = &A::Herp;
 
+    int& aRef = a;
+    if(&aRef == &a)
+        cout << "address of a ref is possible" << endl;
+
+    if(std::is_trivially_copyable<std::reference_wrapper<int> >())
+        cout << "well that made life easier" << endl;
+
+    if(std::is_trivially_copyable<typename std::remove_reference<int *&>::type>::value)
+        cout << "more easy living" << endl;
+
+    //if(std::is_pointer<typename std::remove_reference<const char *>::type>::value &&
+    //   std::is_const<typename recursive_remove_pointer<typename std::remove_reference<const char *>::type>::type>::value)
+    //    cout << "damn thing is sharp man" << endl;
+    //recursive_remove_pointer<const char *>::type testthingy;
+    std::cout << typeid(std::decay<const char**>::type).name() << std::endl;
+
     cout << "value: " << _get.Invoke((void *) &test) << endl;
 
     const vector<Variant> args = {bP};

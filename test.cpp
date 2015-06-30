@@ -6,6 +6,7 @@
 
 #include "common.hpp"
 #include "type.hpp"
+#include "variant.hpp"
 
 using namespace reflectioncpp;
 
@@ -61,11 +62,13 @@ public:
 		return Instance().database[typeId];
 	}
 
-	template <typename T>
+	template <class T>
 	static MetaType* Get()
 	{
+		using RootType = typename reflectioncpp::TypeUtility<T>::Type;
+
 		boost::shared_lock<boost::shared_mutex> lock(Instance().databaseAccess);
-		return Instance().database[Type<T>::GetTypeCode()];
+		return Instance().database[RootType::GetTypeCode()];
 	}
 };
 
@@ -75,11 +78,20 @@ struct Herp
 	char b;
 	float c;
 };
-EXPORT_TYPEINFO(Herp, Herp)
-
+EXPORT_TYPEINFO(Herp, Herp);
+EXPORT_TYPEINFO(std::string, std_string);
 
 int main (int argc, char** argv)
 {
+	reflectioncpp::Variant a;
+	a.Set(5);
+	int f = 3;
+	int* g = &f;
+	a = g;
+
+	reflectioncpp::Variant b;
+	b.Set(std::string("hello world"));
+
 	MetaTypeDatabase::RegisterType(new MetaTypeImpl<Herp>);
 	MetaTypeDatabase::RegisterType(new MetaTypeImpl<int>);
 

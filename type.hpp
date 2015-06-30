@@ -16,13 +16,13 @@ namespace reflectioncpp \
 	TypeCode __typeinfo_id_##NAME = utility::hash(__typeinfo_name_##NAME, __typeinfo_namelength_##NAME); \
 	\
 	template<> \
-	const char* Type<TYPE>::GetName() \
+	const char* Type<reflectioncpp::TypeUtility<TYPE>::type>::GetName() \
 	{ \
 		return __typeinfo_name_##NAME; \
 	} \
 	\
 	template<> \
-	const reflectioncpp::TypeCode Type<TYPE>::GetTypeCode() \
+	const reflectioncpp::TypeCode Type<reflectioncpp::TypeUtility<TYPE>::type>::GetTypeCode() \
 	{ \
 		return __typeinfo_id_##NAME; \
 	} \
@@ -33,20 +33,30 @@ namespace reflectioncpp
 	// The typeid object
 	typedef uint64_t TypeCode;
 
-	// Type cleanup utility
-	template <typename T>
-	struct TypeCleaner
-	{
-		typedef std::remove_reference<std::remove_cv<T> > type;
-	};
-
 	// Our custom internal type tracker
-	template <typename T>
+	template <class T>
 	struct Type
 	{
 		static const char* GetName();
 		static const TypeCode GetTypeCode();
 	};
+
+	// Type cleanup utility
+	template <class T>
+	struct TypeUtility
+	{
+		typedef typename std::remove_cv<typename utility::recursive_remove_pointer<typename std::remove_reference<T>::type>::type>::type type;
+
+		typedef typename reflectioncpp::Type<type> Type;
+	};
+
+	// Our custom internal type tracker
+	/*template <class T *>
+	struct Type
+	{
+		static const char* GetName();
+		static const TypeCode GetTypeCode();
+	};*/
 }
 
 #endif
