@@ -84,13 +84,21 @@ EXPORT_TYPEINFO(std::string, std_string);
 int main (int argc, char** argv)
 {
 	reflectioncpp::Variant a;
-	a.Set(5);
-	int f = 3;
-	int* g = &f;
-	a = g;
+	
+	int aNumber = 4;
+	a.Set(aNumber);
+	a = 4;
 
-	reflectioncpp::Variant b;
-	b.Set(std::string("hello world"));
+	std::cout << "addr in parent: " << (size_t) &aNumber << std::endl;
+	a.SetReference(aNumber);
+
+	//a.Set(5);
+	//int f = 3;
+	//int* g = &f;
+	//a = g;
+
+	//reflectioncpp::Variant b;
+	//b.Set(std::string("hello world"));
 
 	MetaTypeDatabase::RegisterType(new MetaTypeImpl<Herp>);
 	MetaTypeDatabase::RegisterType(new MetaTypeImpl<int>);

@@ -90,7 +90,7 @@ namespace reflectioncpp
 		typename std::enable_if<std::is_pointer<T>::value &&
 								!std::is_const<typename utility::recursive_remove_pointer<typename std::remove_reference<T>::type>::type>::value
 								>::type
-		Set(T data)
+		Set(T& data)
 		{
 			Release();
 			
@@ -104,39 +104,11 @@ namespace reflectioncpp
 		typename std::enable_if<std::is_pointer<T>::value &&
 								std::is_const<typename utility::recursive_remove_pointer<typename std::remove_reference<T>::type>::type>::value
 								>::type
-		Set(T data)
+		Set(T& data)
 		{
 			Release();
 			
 			storageConstPointer = reinterpret_cast<const void *>(data);
-			storageMethod = StorageMethodUnownedConstPointer;
-			currentType = TypeUtility<T>::Type::GetTypeCode();
-		}
-
-		// If we are to be storing a reference
-		template <class T>
-		typename std::enable_if<std::is_reference<T>::value &&
-								!std::is_const<typename utility::recursive_remove_pointer<typename std::remove_reference<T>::type>::type>::value
-								>::type
-		Set(T data)
-		{
-			Release();
-			
-			storagePointer = reinterpret_cast<void *>(&data);
-			storageMethod = StorageMethodUnownedPointer;
-			currentType = TypeUtility<T>::Type::GetTypeCode();
-		}
-
-		// If we are to storing a const reference, life is easy
-		template <class T>
-		typename std::enable_if<std::is_reference<T>::value &&
-								std::is_const<typename utility::recursive_remove_pointer<typename std::remove_reference<T>::type>::type>::value
-								>::type
-		Set(T data)
-		{
-			Release();
-			
-			storageConstPointer = reinterpret_cast<const void *>(&data);
 			storageMethod = StorageMethodUnownedConstPointer;
 			currentType = TypeUtility<T>::Type::GetTypeCode();
 		}
@@ -149,10 +121,9 @@ namespace reflectioncpp
 		// If we are storing a trivial type (need to clone)
 		template <class T>
 		typename std::enable_if<!std::is_pointer<T>::value &&
-								!std::is_reference<T>::value && 
-								 std::is_trivially_copyable<T>::value
+								 std::is_trivial<T>::value
 								>::type
-		Set (T data)
+		Set (T& data)
 		{
 			Release();
 
@@ -170,10 +141,9 @@ namespace reflectioncpp
 		// If we are storing a non trival type, we have to construct it
 		template <class T>
 		typename std::enable_if<!std::is_pointer<T>::value &&
-								!std::is_reference<T>::value && 
-								!std::is_trivially_copyable<T>::value
+								!std::is_trivial<T>::value
 								>::type
-		Set (T data)
+		Set (T& data)
 		{
 			Release();
 
@@ -191,6 +161,14 @@ namespace reflectioncpp
 			{
 				delete reinterpret_cast<U *>(storagePointer);
 			};
+		}
+
+		// Set reference function (finds the address of the object passed)
+		template <class T>
+		void SetReference(T& dataReference)
+		{
+			T* pointer = &dataReference;
+			Set(pointer);
 		}
 
 		// Assignment operator to any generic type is setting as a const reference
