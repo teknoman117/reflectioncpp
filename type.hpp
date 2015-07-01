@@ -24,7 +24,7 @@ namespace reflectioncpp \
 			{ \
 				return __typedefinition_name_##NAME; \
 			} \
-			constexpr static inline TypeCode Code() \
+			constexpr static inline const TypeCode Code() \
 			{ \
 				return __typedefinition_id_##NAME; \
 			} \
@@ -43,11 +43,11 @@ namespace reflectioncpp
 		template <class T>
 		struct TypeDefinition
 		{
-			constexpr static const char* Name()
+			constexpr static inline const char* Name()
 			{
 				return NULL;
 			}
-			constexpr static TypeCode Code()
+			constexpr static inline const TypeCode Code()
 			{
 				return 0;
 			}

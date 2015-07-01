@@ -106,8 +106,9 @@ int main (int argc, char** argv)
 
 	//MetaType *metadata = MetaTypeDatabase::Get<Herp>();
 	//MetaType *integer = MetaTypeDatabase::Get<int>();
+	TypeCode type = Type<int>::Code();
 
-	std::cout << Type<int>::Name() << ": " << Type<int>::Code() << std::endl;
+	cout << Type<int>::Name() << ": " << type << endl;
 
 	//std::cout << integer->Name() << ": " << integer->Identifier() << std::endl;
 
