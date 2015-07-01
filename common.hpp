@@ -1,8 +1,6 @@
 #ifndef __REFLECTIONCPP_COMMON_HPP__
 #define __REFLECTIONCPP_COMMON_HPP__
 
-#include <cinttypes>
-
 namespace reflectioncpp
 {
 	namespace utility

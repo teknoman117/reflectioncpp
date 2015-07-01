@@ -1,16 +1,17 @@
 #include <iostream>
-#include <string>
-#include <map>
+//#include <string>
+//#include <map>
 
-#include <boost/thread/shared_mutex.hpp>
+//#include <boost/thread/shared_mutex.hpp>
 
-#include "common.hpp"
+//#include "common.hpp"
 #include "type.hpp"
-#include "variant.hpp"
+//#include "variant.hpp"
 
 using namespace reflectioncpp;
+using namespace std;
 
-class MetaType
+/*class MetaType
 {
 public:
 	virtual std::string Name() const = 0;
@@ -29,12 +30,12 @@ public:
 
 	std::string Name() const override
 	{
-		return Type<T>::GetName();
+		return Type<T>::Name();
 	}
 
 	TypeCode Identifier() const override
 	{
-		return Type<T>::GetTypeCode();
+		return Type<T>::Code();
 	}
 };
 
@@ -65,12 +66,12 @@ public:
 	template <class T>
 	static MetaType* Get()
 	{
-		using RootType = typename reflectioncpp::TypeUtility<T>::Type;
+		using TypeInfo = typename reflectioncpp::Type<T>;
 
 		boost::shared_lock<boost::shared_mutex> lock(Instance().databaseAccess);
-		return Instance().database[RootType::GetTypeCode()];
+		return Instance().database[TypeInfo::Code()];
 	}
-};
+};*/
 
 struct Herp
 {
@@ -78,12 +79,12 @@ struct Herp
 	char b;
 	float c;
 };
-EXPORT_TYPEINFO(Herp, Herp);
-EXPORT_TYPEINFO(std::string, std_string);
+
+DEFINE_TYPE(Herp, Herp);
 
 int main (int argc, char** argv)
 {
-	reflectioncpp::Variant a;
+	/*reflectioncpp::Variant a;
 	
 	int aNumber = 4;
 	a.Set(aNumber);
@@ -98,19 +99,19 @@ int main (int argc, char** argv)
 	//a = g;
 
 	//reflectioncpp::Variant b;
-	//b.Set(std::string("hello world"));
+	//b.Set(std::string("hello world"));*/
 
-	MetaTypeDatabase::RegisterType(new MetaTypeImpl<Herp>);
-	MetaTypeDatabase::RegisterType(new MetaTypeImpl<int>);
+	//MetaTypeDatabase::RegisterType(new MetaTypeImpl<Herp>);
+	//MetaTypeDatabase::RegisterType(new MetaTypeImpl<int>);
 
-	MetaType *metadata = MetaTypeDatabase::Get<Herp>();
-	MetaType *integer = MetaTypeDatabase::Get<int>();
+	//MetaType *metadata = MetaTypeDatabase::Get<Herp>();
+	//MetaType *integer = MetaTypeDatabase::Get<int>();
 
-	std::cout << Type<int>::GetName() << ": " << Type<int>::GetTypeCode() << std::endl;
+	std::cout << Type<int>::Name() << ": " << Type<int>::Code() << std::endl;
 
-	std::cout << integer->Name() << ": " << integer->Identifier() << std::endl;
+	//std::cout << integer->Name() << ": " << integer->Identifier() << std::endl;
 
-	std::cout << metadata->Name() << ": " << metadata->Identifier() << std::endl;
+	//std::cout << metadata->Name() << ": " << metadata->Identifier() << std::endl;
 
 	return 0;
 }

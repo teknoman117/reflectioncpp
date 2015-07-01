@@ -9,54 +9,69 @@
 #include "common.hpp"
 #include "compiletime.hpp"
 
-#define EXPORT_TYPEINFO(TYPE, NAME) \
+#define DEFINE_TYPE(TYPE, NAME) \
 namespace reflectioncpp \
 { \
-	constexpr const char* __typeinfo_name_##NAME = "" #NAME "" ; \
-	constexpr TypeCode __typeinfo_id_##NAME = compiletime::hash_cstring(__typeinfo_name_##NAME, compiletime::length_cstring(__typeinfo_name_##NAME)); \
-	\
-	template<> \
-	const char* Type<reflectioncpp::TypeUtility<TYPE>::type>::GetName() \
+	namespace definition \
 	{ \
-		return __typeinfo_name_##NAME; \
+		constexpr const char*    __typedefinition_name_##NAME = #NAME; \
+		constexpr const TypeCode __typedefinition_id_##NAME = compiletime::hash_cstring(#NAME, compiletime::length_cstring(#NAME)); \
+		\
+		template <> \
+		struct TypeDefinition<Type<TYPE>::RootType> \
+		{ \
+			constexpr static inline const char * Name() \
+			{ \
+				return __typedefinition_name_##NAME; \
+			} \
+			constexpr static inline TypeCode Code() \
+			{ \
+				return __typedefinition_id_##NAME; \
+			} \
+		}; \
 	} \
-	\
-	template<> \
-	const reflectioncpp::TypeCode Type<reflectioncpp::TypeUtility<TYPE>::type>::GetTypeCode() \
-	{ \
-		return __typeinfo_id_##NAME; \
-	} \
-}\
+} \
 
 namespace reflectioncpp
 {
 	// The typeid object
 	typedef uint64_t TypeCode;
 
-	// Our custom internal type tracker
-	template <class T>
-	struct Type
+	namespace definition
 	{
-		static const char* GetName();
-		static const TypeCode GetTypeCode();
-	};
+		// Type definition class (override for typeinfo'd types)
+		template <class T>
+		struct TypeDefinition
+		{
+			constexpr static const char* Name()
+			{
+				return NULL;
+			}
+			constexpr static TypeCode Code()
+			{
+				return 0;
+			}
+		};
+	}
 
 	// Type cleanup utility
 	template <class T>
-	struct TypeUtility
-	{
-		typedef typename std::remove_cv<typename utility::recursive_remove_pointer<typename std::remove_reference<T>::type>::type>::type type;
-
-		typedef typename reflectioncpp::Type<type> Type;
-	};
-
-	// Our custom internal type tracker
-	/*template <class T *>
 	struct Type
 	{
-		static const char* GetName();
-		static const TypeCode GetTypeCode();
-	};*/
+		typedef typename std::remove_cv<typename utility::recursive_remove_pointer<typename std::remove_reference<T>::type>::type>::type RootType;
+
+		constexpr static inline const char* Name()
+		{
+			return definition::TypeDefinition<RootType>::Name();
+		}
+		constexpr static inline TypeCode Code()
+		{
+			return definition::TypeDefinition<RootType>::Code();
+		}
+	};
 }
+
+// Pull in the primitive type definitions
+#include "internal/type_definitions.hpp"
 
 #endif
