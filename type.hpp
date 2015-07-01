@@ -7,13 +7,13 @@
 #include <type_traits>
 
 #include "common.hpp"
+#include "compiletime.hpp"
 
 #define EXPORT_TYPEINFO(TYPE, NAME) \
 namespace reflectioncpp \
 { \
 	constexpr const char* __typeinfo_name_##NAME = "" #NAME "" ; \
-	constexpr const size_t __typeinfo_namelength_##NAME = utility::const_strlen(__typeinfo_name_##NAME); \
-	TypeCode __typeinfo_id_##NAME = utility::hash(__typeinfo_name_##NAME, __typeinfo_namelength_##NAME); \
+	constexpr TypeCode __typeinfo_id_##NAME = compiletime::hash_cstring(__typeinfo_name_##NAME, compiletime::length_cstring(__typeinfo_name_##NAME)); \
 	\
 	template<> \
 	const char* Type<reflectioncpp::TypeUtility<TYPE>::type>::GetName() \
