@@ -1,0 +1,10 @@
+# Created by https://www.gitignore.io
+
+### CMake ###
+CMakeCache.txt
+CMakeFiles
+Makefile
+cmake_install.cmake
+install_manifest.txt
+
+build
