@@ -37,6 +37,12 @@ namespace reflectioncpp
 	// The typeid object
 	typedef uint64_t TypeCode;
 
+	typedef struct 
+	{
+		 const TypeCode typeCode;
+		 const char*    typeName;
+	} TypeInfo;
+
 	namespace definition
 	{
 		// Type definition class (override for typeinfo'd types)
@@ -54,6 +60,7 @@ namespace reflectioncpp
 		};
 	}
 
+
 	// Type cleanup utility
 	template <class T>
 	struct Type
@@ -67,6 +74,14 @@ namespace reflectioncpp
 		constexpr static inline TypeCode Code()
 		{
 			return definition::TypeDefinition<RootType>::Code();
+		}
+		constexpr static inline TypeInfo Info()
+		{
+			return (TypeInfo) 
+			{ 
+				definition::TypeDefinition<RootType>::Code(),
+				definition::TypeDefinition<RootType>::Name(),
+			};
 		}
 	};
 }
