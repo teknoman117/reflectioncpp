@@ -114,7 +114,7 @@ int main (int argc, char** argv)
 	//MetaTypeDatabase::RegisterType(new MetaTypeImpl<Herp>);
 	//MetaTypeDatabase::RegisterType(new MetaTypeImpl<int>);
 
-	Herp d;
+	/*Herp d;
 	d.a = 1;
 	d.b = 'c';
 	d.c = 3.14159f;
@@ -145,7 +145,7 @@ int main (int argc, char** argv)
 	cout << "type: " << herpV.type().name << endl;
 	cout << "type: " << test.type().name << endl;
 
-	/*const volatile int* der_rel;
+	const volatile int* der_rel;
 
 	const volatile int*& der = der_rel;
 
@@ -155,12 +155,19 @@ int main (int argc, char** argv)
 	cout << "derp: " << std::is_const<typename std::remove_pointer<decltype(der)>::type>::value << endl;
 	cout << "derp: " << std::is_volatile<typename std::remove_pointer<decltype(der)>::type>::value << endl;*/
 
+	any aVariant;
+	aVariant = 5;
+
+	int number = any_cast<int>(aVariant);
+
+	cout << "the number = " << number << endl;
+
 	//MetaType *metadata = MetaTypeDatabase::Get<Herp>();
 	//MetaType *integer = MetaTypeDatabase::Get<int>();
-	TypeInfo info = Type<const volatile int ****>::Info();
-	TypeInfo info2 = Type<const volatile int ****>::Info();
+	//TypeInfo info = Type<const volatile int ****>::Info();
+	//TypeInfo info2 = Type<const volatile int ****>::Info();
 
-	cout << info.name << ": " << info.code << " " << info.isReference << " " << info.indirection << " " << info.isConst << " " << info.isVolatile << " " << (info == info2) << endl;
+	//cout << info.name << ": " << info.code << " " << info.isReference << " " << info.indirection << " " << info.isConst << " " << info.isVolatile << " " << (info == info2) << endl;
 
 	//std::cout << integer->Name() << ": " << integer->Identifier() << std::endl;
 

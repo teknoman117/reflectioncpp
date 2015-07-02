@@ -90,7 +90,7 @@ namespace reflectioncpp
 			any().swap(*this);
 		}
 
-		const TypeInfo type() const noexcept
+		const TypeInfo & type() const noexcept
 		{
 			return content ? content->type() : Type<void>::Info();
 		}
@@ -104,7 +104,7 @@ namespace reflectioncpp
 			}
 
 		public:
-			virtual const TypeInfo type() const noexcept = 0;
+			virtual const TypeInfo & type() const noexcept = 0;
 			virtual placeholder * clone() const = 0;
 		};
 
@@ -123,7 +123,7 @@ namespace reflectioncpp
 			}
 
 		public:
-			virtual const TypeInfo type() const noexcept
+			virtual const TypeInfo & type() const noexcept
 			{
 				return Type<ValueType>::Info();
 			}

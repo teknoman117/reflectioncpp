@@ -105,17 +105,6 @@ namespace reflectioncpp
 		typedef typename pointer_attributes<noref>::BaseType noptr;
 		typedef typename std::remove_cv<noptr>::type         RootType;
 
-		/*constexpr static const TypeInfo info = TypeInfo
-		(
-			definition::TypeDefinition<RootType>::Code(),
-			definition::TypeDefinition<RootType>::Name(),
-
-			std::is_reference<T>::value,
-			pointer_attributes<noref>::indirection(),
-			std::is_const<noptr>::value,
-			std::is_volatile<noptr>::value
-		);*/
-
 		constexpr static inline const char* Name()
 		{
 			return definition::TypeDefinition<RootType>::Name();
@@ -124,9 +113,10 @@ namespace reflectioncpp
 		{
 			return definition::TypeDefinition<RootType>::Code();
 		}
-		constexpr static inline const TypeInfo Info()
+		static inline const TypeInfo & Info()
 		{
-			return TypeInfo(
+			constexpr static const TypeInfo info = TypeInfo
+			(
 				definition::TypeDefinition<RootType>::Code(),
 				definition::TypeDefinition<RootType>::Name(),
 
@@ -135,6 +125,8 @@ namespace reflectioncpp
 				std::is_const<noptr>::value,
 				std::is_volatile<noptr>::value
 			);
+
+			return info;
 		}
 	};
 }
