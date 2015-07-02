@@ -90,6 +90,8 @@ struct Herp
 
 DEFINE_TYPE(Herp, Herp);
 
+DEFINE_TYPE(std::reference_wrapper<Herp>, Herp_ref);
+
 int main (int argc, char** argv)
 {
 	/*reflectioncpp::Variant a;
@@ -140,11 +142,25 @@ int main (int argc, char** argv)
 	cout << d.c << " " << refH3.c << endl;
 
 
+	cout << "type: " << herpV.type().name << endl;
+	cout << "type: " << test.type().name << endl;
+
+	/*const volatile int* der_rel;
+
+	const volatile int*& der = der_rel;
+
+	cout << "derp: " << std::is_same<decltype(der_rel), decltype(der)>::value << endl;
+	cout << "derp: " << std::is_reference<decltype(der)>::value << endl;
+	cout << "derp: " << std::is_pointer<typename std::remove_reference<decltype(der)>::type>::value << endl;
+	cout << "derp: " << std::is_const<typename std::remove_pointer<decltype(der)>::type>::value << endl;
+	cout << "derp: " << std::is_volatile<typename std::remove_pointer<decltype(der)>::type>::value << endl;*/
+
 	//MetaType *metadata = MetaTypeDatabase::Get<Herp>();
 	//MetaType *integer = MetaTypeDatabase::Get<int>();
-	TypeInfo info = Type<int>::Info();
+	TypeInfo info = Type<const volatile int ****>::Info();
+	TypeInfo info2 = Type<const volatile int ****>::Info();
 
-	cout << info.typeName << ": " << info.typeCode << endl;
+	cout << info.name << ": " << info.code << " " << info.isReference << " " << info.indirection << " " << info.isConst << " " << info.isVolatile << " " << (info == info2) << endl;
 
 	//std::cout << integer->Name() << ": " << integer->Identifier() << std::endl;
 

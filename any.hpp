@@ -2,7 +2,6 @@
 #define __REFLECTIONCPP_ANY_HPP__
 
 #include <type_traits>
-#include <typeinfo>
 #include <algorithm>
 
 #include "type.hpp"
@@ -91,9 +90,9 @@ namespace reflectioncpp
 			any().swap(*this);
 		}
 
-		const std::type_info & type() const noexcept
+		const TypeInfo type() const noexcept
 		{
-			return content ? content->type() : typeid(void);
+			return content ? content->type() : Type<void>::Info();
 		}
 
 	private:
@@ -105,7 +104,7 @@ namespace reflectioncpp
 			}
 
 		public:
-			virtual const std::type_info & type() const noexcept = 0;
+			virtual const TypeInfo type() const noexcept = 0;
 			virtual placeholder * clone() const = 0;
 		};
 
@@ -124,9 +123,9 @@ namespace reflectioncpp
 			}
 
 		public:
-			virtual const std::type_info & type() const noexcept
+			virtual const TypeInfo type() const noexcept
 			{
-				return typeid(ValueType);
+				return Type<ValueType>::Info();
 			}
 			virtual placeholder * clone() const
 			{
@@ -169,7 +168,7 @@ namespace reflectioncpp
 	template<typename ValueType>
 	ValueType * any_cast(any * operand) noexcept
 	{
-		return (operand && operand->type() == typeid(ValueType)) ? &static_cast<any::holder<ValueType> *>(operand->content)->held : 0;
+		return (operand && operand->type() == Type<ValueType>::Info()) ? &static_cast<any::holder<ValueType> *>(operand->content)->held : 0;
 	}
 
 	template<typename ValueType>
@@ -197,12 +196,6 @@ namespace reflectioncpp
         	ValueType,
         	ValueType&
         >::type ref_type;
-
-        /*typedef BOOST_DEDUCED_TYPENAME boost::mpl::if_<
-            boost::is_reference<ValueType>,
-            ValueType,
-            BOOST_DEDUCED_TYPENAME boost::add_reference<ValueType>::type
-        >::type ref_type;*/
 
         return static_cast<ref_type>(*result);
     }

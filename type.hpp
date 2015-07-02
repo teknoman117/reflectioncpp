@@ -37,10 +37,44 @@ namespace reflectioncpp
 	// The typeid object
 	typedef uint64_t TypeCode;
 
-	typedef struct 
+	typedef struct typecode_t
 	{
-		 const TypeCode typeCode;
-		 const char*    typeName;
+		// Type information
+		const TypeCode code;
+		const char*    name;
+
+		// Qualifier data
+		const bool     isReference;
+		const size_t   indirection;
+		const bool     isConst;
+		const bool     isVolatile;
+
+		bool operator== (const typecode_t& rhs) const
+		{
+			return rhs.code == code &&
+				   rhs.isReference == isReference &&
+				   rhs.indirection == indirection &&
+				   rhs.isConst == isConst &&
+				   rhs.isVolatile == isVolatile;
+		}
+
+		bool operator!= (const typecode_t& rhs) const
+		{
+			return !(*this == rhs);
+		}
+
+		constexpr typecode_t()
+			: code(0), name(0), isReference(false), indirection(0), isConst(false), isVolatile(false)
+		{
+
+		}
+
+		constexpr typecode_t(const TypeCode code, const char *name, const bool isReference, const size_t indirection, const bool isConst, const bool isVolatile)
+			: code(code), name(name), isReference(isReference), indirection(indirection), isConst(isConst), isVolatile(isVolatile)
+		{
+
+		}
+
 	} TypeInfo;
 
 	namespace definition
@@ -51,10 +85,12 @@ namespace reflectioncpp
 		{
 			constexpr static inline const char* Name()
 			{
+				assert(0 /*No type definition for type*/);
 				return NULL;
 			}
 			constexpr static inline const TypeCode Code()
 			{
+				assert(0 /*No type definition for type*/);
 				return 0;
 			}
 		};
@@ -65,7 +101,20 @@ namespace reflectioncpp
 	template <class T>
 	struct Type
 	{
-		typedef typename std::remove_cv<typename utility::recursive_remove_pointer<typename std::remove_reference<T>::type>::type>::type RootType;
+		typedef typename std::remove_reference<T>::type      noref;
+		typedef typename pointer_attributes<noref>::BaseType noptr;
+		typedef typename std::remove_cv<noptr>::type         RootType;
+
+		/*constexpr static const TypeInfo info = TypeInfo
+		(
+			definition::TypeDefinition<RootType>::Code(),
+			definition::TypeDefinition<RootType>::Name(),
+
+			std::is_reference<T>::value,
+			pointer_attributes<noref>::indirection(),
+			std::is_const<noptr>::value,
+			std::is_volatile<noptr>::value
+		);*/
 
 		constexpr static inline const char* Name()
 		{
@@ -75,13 +124,17 @@ namespace reflectioncpp
 		{
 			return definition::TypeDefinition<RootType>::Code();
 		}
-		constexpr static inline TypeInfo Info()
+		constexpr static inline const TypeInfo Info()
 		{
-			return (TypeInfo) 
-			{ 
+			return TypeInfo(
 				definition::TypeDefinition<RootType>::Code(),
 				definition::TypeDefinition<RootType>::Name(),
-			};
+
+				std::is_reference<T>::value,
+				pointer_attributes<noref>::indirection(),
+				std::is_const<noptr>::value,
+				std::is_volatile<noptr>::value
+			);
 		}
 	};
 }

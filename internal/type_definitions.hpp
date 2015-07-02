@@ -1,6 +1,9 @@
 #ifndef __REFLECTIONCPP_TYPE_DEFINITIONS__
 #define __REFLECTIONCPP_TYPE_DEFINITIONS__
 
+// Good ol' void
+DEFINE_TYPE(void, void);
+
 // Export the character types
 DEFINE_TYPE(char, char);
 DEFINE_TYPE(wchar_t, wchar_t);
