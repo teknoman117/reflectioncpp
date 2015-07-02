@@ -1,10 +1,13 @@
 #include <iostream>
+#include <functional>
+
 //#include <string>
 //#include <map>
 
 //#include <boost/thread/shared_mutex.hpp>
 
 //#include "common.hpp"
+#include "any.hpp"
 #include "type.hpp"
 //#include "variant.hpp"
 
@@ -78,6 +81,11 @@ struct Herp
 	int a;
 	char b;
 	float c;
+
+	virtual void doSomething()
+	{
+		cout << a << " " << b << " " << c << endl;
+	}
 };
 
 DEFINE_TYPE(Herp, Herp);
@@ -104,11 +112,39 @@ int main (int argc, char** argv)
 	//MetaTypeDatabase::RegisterType(new MetaTypeImpl<Herp>);
 	//MetaTypeDatabase::RegisterType(new MetaTypeImpl<int>);
 
+	Herp d;
+	d.a = 1;
+	d.b = 'c';
+	d.c = 3.14159f;
+
+	any herpV(d);
+
+	any test;
+	test = std::ref(d);
+
+
+	Herp& refH = any_cast<Herp&>(herpV);
+	refH.c = 6.242f;
+
+	cout << d.c << " " << refH.c << endl;
+
+	Herp& refH2 = any_cast<Herp&>(herpV);
+	refH.c = 9.242f;
+
+	cout << refH.c << " " << refH2.c << endl << endl;
+
+	Herp& refH3 = any_cast< decltype((std::ref(d))) >(test).get();
+
+	cout << d.c << " " << refH3.c << endl;
+	refH3.c = 42.1f;
+	cout << d.c << " " << refH3.c << endl;
+
+
 	//MetaType *metadata = MetaTypeDatabase::Get<Herp>();
 	//MetaType *integer = MetaTypeDatabase::Get<int>();
-	TypeCode type = Type<int>::Code();
+	TypeInfo info = Type<int>::Info();
 
-	cout << Type<int>::Name() << ": " << type << endl;
+	cout << info.typeName << ": " << info.typeCode << endl;
 
 	//std::cout << integer->Name() << ": " << integer->Identifier() << std::endl;
 
