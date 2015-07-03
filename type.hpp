@@ -1,10 +1,11 @@
 #ifndef __REFLECTIONCPP_TYPE_HPP__
 #define __REFLECTIONCPP_TYPE_HPP__
 
-#include <string>
 #include <cinttypes>
-#include <cassert>
+#include <functional>
 #include <type_traits>
+
+#include <cassert>
 
 #include "common.hpp"
 #include "compiletime.hpp"
@@ -37,7 +38,7 @@ namespace reflectioncpp
 	// The typeid object
 	typedef uint64_t TypeCode;
 
-	typedef struct typecode_t
+	struct TypeInfo
 	{
 		// Type information
 		const TypeCode code;
@@ -49,7 +50,7 @@ namespace reflectioncpp
 		const bool     isConst;
 		const bool     isVolatile;
 
-		bool operator== (const typecode_t& rhs) const
+		bool operator== (const TypeInfo& rhs) const
 		{
 			return rhs.code == code &&
 				   rhs.isReference == isReference &&
@@ -58,24 +59,24 @@ namespace reflectioncpp
 				   rhs.isVolatile == isVolatile;
 		}
 
-		bool operator!= (const typecode_t& rhs) const
+		bool operator!= (const TypeInfo& rhs) const
 		{
 			return !(*this == rhs);
 		}
 
-		constexpr typecode_t()
+		constexpr TypeInfo()
 			: code(0), name(0), isReference(false), indirection(0), isConst(false), isVolatile(false)
 		{
 
 		}
 
-		constexpr typecode_t(const TypeCode code, const char *name, const bool isReference, const size_t indirection, const bool isConst, const bool isVolatile)
+		constexpr TypeInfo(const TypeCode code, const char *name, const bool isReference, const size_t indirection, const bool isConst, const bool isVolatile)
 			: code(code), name(name), isReference(isReference), indirection(indirection), isConst(isConst), isVolatile(isVolatile)
 		{
 
 		}
 
-	} TypeInfo;
+	};
 
 	namespace definition
 	{

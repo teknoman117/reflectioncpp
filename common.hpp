@@ -1,6 +1,9 @@
 #ifndef __REFLECTIONCPP_COMMON_HPP__
 #define __REFLECTIONCPP_COMMON_HPP__
 
+#include <type_traits>
+#include <functional>
+
 namespace reflectioncpp
 {
 	template <class T, size_t N = 0>
@@ -31,6 +34,12 @@ namespace reflectioncpp
 		};
 
 		typedef typename recursive_remove_pointer<T>::type BaseType;
+	};
+
+	template <class T>
+	struct Ref
+	{
+		typedef std::reference_wrapper<typename std::remove_reference<T>::type> wrapper;
 	};
 }
 
