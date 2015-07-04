@@ -18,74 +18,72 @@ namespace reflectioncpp
     class Constructor
     {
     public:
+        virtual any Construct() = 0;
         virtual any Construct(std::vector<any>& params) = 0;
     };
 
-    template<class, class, typename Enable = void>
+    template<class, typename Enable = void>
     class ConstructorImpl;
 
     // Construct with no parameters
-    template<class T, class R, class... Args>
-    class ConstructorImpl<T, R(Args...), void> : public Constructor
+    template<class T, class... Args>
+    class ConstructorImpl<T (Args...), typename std::enable_if<!sizeof...(Args)>::type> : public Constructor
     {
-        T* _Construct()
+    public:
+        any Construct()
         {
-            return new T();
+            return any(new T());
         }
 
-    public:
         any Construct(std::vector<any>& params)
         {
-            return any(_Construct());
+            return Construct();
         }
     };
 
     // Specialization for return type of void, but with arguments
-    /*template<class T, class... Args>
-    class ConstructorImpl<T, Args...> : public Constructor
+    template<class T, class... Args>
+    class ConstructorImpl<T (Args...), typename std::enable_if<sizeof...(Args)>::type> : public Constructor
     {
         // Completed parameter pack, executes method
         template <typename... Ts>
-        inline typename std::enable_if<sizeof...(Args) == sizeof...(Ts), R>::type
+        inline typename std::enable_if<sizeof...(Args) == sizeof...(Ts), T*>::type
         _Construct(std::vector<any>& v, Ts&&... ts)
         {
-            if(sizeof...(Ts) > v.size())
-                throw std::out_of_range("vector too small for function");
-
-            // Invoke the method
-            return (((T*) instance)->*methodPointer)(std::forward<Ts>(ts)...);
+            // Invoke the constructor
+            return new T(std::forward<Ts>(ts)...);
         }
 
         // Builds the parameter pack
         template <typename... Ts>
-        inline typename std::enable_if<sizeof...(Args) != sizeof...(Ts), R>::type
-        _Invoke(T *instance, std::vector<any>& v, Ts&&... ts)
+        inline typename std::enable_if<sizeof...(Args) != sizeof...(Ts), T*>::type
+        _Construct(std::vector<any>& v, Ts&&... ts)
         {
             constexpr int index = sizeof...(Args) - sizeof...(Ts) - 1;
             static_assert(index >= 0, "incompatible function parameters");
 
+            // Add the parameter to the function call 
             using type = typename std::tuple_element<index, std::tuple<Args...>>::type;
-
-            //cout << "Unpacking: " << Type<type>::Info().name << " @" << index << endl;
             any& param = *(std::begin(v) + index);
-
-            return _Invoke(instance, v, any_cast<type>(param), std::forward<Ts>(ts)... );
+            return _Construct(v, any_cast<type>(param), std::forward<Ts>(ts)... );
         }
 
     public:
-        MethodImpl(PointerType methodPointer)
-            : methodPointer(methodPointer)
+        any Construct()
         {
+            throw std::out_of_range("vector too small for function");
 
-        }
-
-        any Invoke(void *instance, std::vector<any>& params)
-        {
-            T *concreteInstance = reinterpret_cast<T *>(instance);
-            _Invoke(concreteInstance, params);
             return any();
         }
-    };*/
+
+        any Construct(std::vector<any>& params)
+        {
+            if(sizeof...(Args) > params.size())
+                throw std::out_of_range("vector too small for function");
+
+            return any(_Construct(params));
+        }
+    };
 }
 
 class A
@@ -95,6 +93,7 @@ public:
 
 public:
     A() : value(0) {}
+    A(int i) : value(i) {}
 
     //void Set(int a) {value = a;}
     /*int Get() {return value;}
@@ -126,44 +125,39 @@ DEFINE_TYPE(string, string);
 
 int main (int argc, char** argv)
 {
-    //MethodImpl<A, void(int,float,string)> *derp = new MethodImpl<A, void(int,float,string)> (&A::Derp);
-    /*MethodImpl<A, void(int)>  _set(&A::Set);
-    MethodImpl<A, int()>  _get(&A::Get);
-    MethodImpl<A, void()> _increment(&A::Increment);
-    MethodImpl<A, int()> _function(&A::operator());*/
+    vector<any> args =
+    {
+        89,
+        3.14159f,
+        std::string("hello, world!"),
+    };
 
     Method *derp = new MethodImpl<A, int(int,float,string)>(&A::Derp);
     Method *getValue = new MethodImpl<A, int& ()>(&A::GetValue);
 
-    Constructor *factory = new ConstructorImpl<A, A* ()>();
+    Constructor *factoryDefault    = new ConstructorImpl<A ()>();
+    Constructor *factoryInitialize = new ConstructorImpl<A (int)>();
 
-    std::vector<any> cparm;
-    A *test = any_cast<A *>(factory->Construct(cparm));
+    // Test the default constructor
+    any aInstance = factoryDefault->Construct();
+    cout << "type = " << aInstance.type().name << endl;
+
+    A *test = any_cast<A *>(aInstance);
     test->value = 5;
 
-    vector<any> args =
-    {
-    	89,
-    	3.14159f,
-    	std::string("hello, world!"),
-    };
-
-    //cout << "value: " << _get.Invoke((void *) &test) << endl;
-    /*_set.Invoke((void *) &test, args);
-
-    _derp.Invoke((void *) &test, args);
-
-    cout << "value: " << _get.Invoke((void *) &test) << endl;
-    _increment.Invoke((void *) &test);
-    cout << "value: " << _function.Invoke((void *) &test) << endl;*/
-
-    any someInt = derp->Invoke(&test, args);
+    // Test a simple test function
+    any someInt = derp->Invoke(test, args);
     cout << "some int = " << any_cast<int>(someInt) << endl;
-    int& valueRef = any_cast<Ref<int>::wrapper>(getValue->Invoke(test, args)).get();
 
-    cout << "values: " << valueRef << " " << test->value << endl;
+    // Test reference wrappers
+    any someIntRef = getValue->Invoke(test, args);
+    int& valueRef = any_cast<Ref<int>::wrapper>(someIntRef).get();
+
+    cout << "values before ref: " << valueRef << " " << test->value << endl;
     valueRef = 7;
-    cout << "values: " << valueRef << " " << test->value << endl;
+    cout << "values after ref: " << valueRef << " " << test->value << endl;
+
+    delete test;
 
 	return 0;
 }
