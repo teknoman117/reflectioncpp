@@ -13,7 +13,80 @@
 using namespace reflectioncpp;
 using namespace std;
 
+namespace reflectioncpp
+{
+    class Constructor
+    {
+    public:
+        virtual any Construct(std::vector<any>& params) = 0;
+    };
 
+    template<class, class, typename Enable = void>
+    class ConstructorImpl;
+
+    // Construct with no parameters
+    template<class T, class R, class... Args>
+    class ConstructorImpl<T, R(Args...), void> : public Constructor
+    {
+        T* _Construct()
+        {
+            return new T();
+        }
+
+    public:
+        any Construct(std::vector<any>& params)
+        {
+            return any(_Construct());
+        }
+    };
+
+    // Specialization for return type of void, but with arguments
+    /*template<class T, class... Args>
+    class ConstructorImpl<T, Args...> : public Constructor
+    {
+        // Completed parameter pack, executes method
+        template <typename... Ts>
+        inline typename std::enable_if<sizeof...(Args) == sizeof...(Ts), R>::type
+        _Construct(std::vector<any>& v, Ts&&... ts)
+        {
+            if(sizeof...(Ts) > v.size())
+                throw std::out_of_range("vector too small for function");
+
+            // Invoke the method
+            return (((T*) instance)->*methodPointer)(std::forward<Ts>(ts)...);
+        }
+
+        // Builds the parameter pack
+        template <typename... Ts>
+        inline typename std::enable_if<sizeof...(Args) != sizeof...(Ts), R>::type
+        _Invoke(T *instance, std::vector<any>& v, Ts&&... ts)
+        {
+            constexpr int index = sizeof...(Args) - sizeof...(Ts) - 1;
+            static_assert(index >= 0, "incompatible function parameters");
+
+            using type = typename std::tuple_element<index, std::tuple<Args...>>::type;
+
+            //cout << "Unpacking: " << Type<type>::Info().name << " @" << index << endl;
+            any& param = *(std::begin(v) + index);
+
+            return _Invoke(instance, v, any_cast<type>(param), std::forward<Ts>(ts)... );
+        }
+
+    public:
+        MethodImpl(PointerType methodPointer)
+            : methodPointer(methodPointer)
+        {
+
+        }
+
+        any Invoke(void *instance, std::vector<any>& params)
+        {
+            T *concreteInstance = reinterpret_cast<T *>(instance);
+            _Invoke(concreteInstance, params);
+            return any();
+        }
+    };*/
+}
 
 class A
 {
@@ -62,8 +135,11 @@ int main (int argc, char** argv)
     Method *derp = new MethodImpl<A, int(int,float,string)>(&A::Derp);
     Method *getValue = new MethodImpl<A, int& ()>(&A::GetValue);
 
-    A test;
-    test.value = 5;
+    Constructor *factory = new ConstructorImpl<A, A* ()>();
+
+    std::vector<any> cparm;
+    A *test = any_cast<A *>(factory->Construct(cparm));
+    test->value = 5;
 
     vector<any> args =
     {
@@ -83,11 +159,11 @@ int main (int argc, char** argv)
 
     any someInt = derp->Invoke(&test, args);
     cout << "some int = " << any_cast<int>(someInt) << endl;
-    int& valueRef = any_cast<Ref<int>::wrapper>(getValue->Invoke(&test, args)).get();
+    int& valueRef = any_cast<Ref<int>::wrapper>(getValue->Invoke(test, args)).get();
 
-    cout << "values: " << valueRef << " " << test.value << endl;
+    cout << "values: " << valueRef << " " << test->value << endl;
     valueRef = 7;
-    cout << "values: " << valueRef << " " << test.value << endl;
+    cout << "values: " << valueRef << " " << test->value << endl;
 
 	return 0;
 }
