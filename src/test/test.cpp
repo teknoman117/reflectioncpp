@@ -6,9 +6,9 @@
 #include <string>
 #include <functional>
 
-#include "any.hpp"
-#include "type.hpp"
-#include "method.hpp"
+#include <reflectioncpp/any.hpp>
+#include <reflectioncpp/type.hpp>
+#include <reflectioncpp/method.hpp>
 
 using namespace reflectioncpp;
 using namespace std;
