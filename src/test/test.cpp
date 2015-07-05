@@ -14,6 +14,109 @@
 using namespace reflectioncpp;
 using namespace std;
 
+template <class, typename Enable = void>
+class FunctionImpl;
+
+template <class R, class... Args>
+class FunctionImpl<R (Args...), typename std::enable_if<std::is_void<R>::value>::type> : public Invokable
+{
+public:
+    typedef R (*PointerType)(Args...);
+    PointerType functionPointer;
+
+private:
+    // Completed parameter pack, executes method
+    template <typename... Ts>
+    inline typename std::enable_if<sizeof...(Args) == sizeof...(Ts), R>::type
+    _Invoke(std::vector<any>::iterator begin, Ts&&... ts)
+    {
+        // Invoke the method
+        (*functionPointer)(std::forward<Ts>(ts)...);
+    }
+
+    // Builds the parameter pack
+    template <typename... Ts>
+    inline typename std::enable_if<sizeof...(Args) != sizeof...(Ts), R>::type
+    _Invoke(std::vector<any>::iterator begin, Ts&&... ts)
+    {
+        constexpr int index = sizeof...(Args) - sizeof...(Ts) - 1;
+        static_assert(index >= 0, "incompatible function parameters");
+
+        using type = typename std::tuple_element<index, std::tuple<Args...>>::type;
+
+        //cout << "Unpacking: " << Type<type>::Info().name << " @" << index << endl;
+        any& param = *(begin + index);
+
+        _Invoke(begin, any_cast<type>(param), std::forward<Ts>(ts)... );
+    }
+
+public:
+    FunctionImpl(PointerType functionPointer)
+        : functionPointer(functionPointer)
+    {
+
+    }
+
+    any Invoke(std::vector<any>& params) override
+    {
+        if(params.size() < sizeof...(Args))
+            throw std::out_of_range("too few parameters for function");
+
+        _Invoke(params.begin());
+
+        return any();
+    }
+};
+
+template <class R, class... Args>
+class FunctionImpl<R (Args...), typename std::enable_if<!std::is_void<R>::value>::type> : public Invokable
+{
+public:
+    typedef R (*PointerType)(Args...);
+    PointerType functionPointer;
+
+private:
+    // Completed parameter pack, executes method
+    template <typename... Ts>
+    inline typename std::enable_if<sizeof...(Args) == sizeof...(Ts), R>::type
+    _Invoke(std::vector<any>::iterator begin, Ts&&... ts)
+    {
+        // Invoke the method
+        return (*functionPointer)(std::forward<Ts>(ts)...);
+    }
+
+    // Builds the parameter pack
+    template <typename... Ts>
+    inline typename std::enable_if<sizeof...(Args) != sizeof...(Ts), R>::type
+    _Invoke(std::vector<any>::iterator begin, Ts&&... ts)
+    {
+        constexpr int index = sizeof...(Args) - sizeof...(Ts) - 1;
+        static_assert(index >= 0, "incompatible function parameters");
+
+        using type = typename std::tuple_element<index, std::tuple<Args...>>::type;
+
+        //cout << "Unpacking: " << Type<type>::Info().name << " @" << index << endl;
+        any& param = *(begin + index);
+
+        return _Invoke(begin, any_cast<type>(param), std::forward<Ts>(ts)... );
+    }
+
+public:
+    FunctionImpl(PointerType functionPointer)
+        : functionPointer(functionPointer)
+    {
+
+    }
+
+    any Invoke(std::vector<any>& params) override
+    {
+        if(params.size() < sizeof...(Args))
+            throw std::out_of_range("too few parameters for function");
+
+        return any(_Invoke(params.begin()));
+    }
+};
+
 class A
 {
 public:
@@ -61,6 +164,8 @@ int main (int argc, char** argv)
     Invokable *factoryDefault    = new ConstructorImpl<A* ()>();
     Invokable *factoryInitialize = new ConstructorImpl<A* (int)>();
 
+    Invokable *staticfunction = new FunctionImpl<void ()>(&A::Herp);
+
     // Test the default constructor
     any aInstance = factoryDefault->Invoke();
     cout << "type = " << aInstance.type().name << endl;
@@ -89,6 +194,9 @@ int main (int argc, char** argv)
     cout << "values before ref: " << valueRef << " " << test->value << endl;
     valueRef = 7;
     cout << "values after ref: " << valueRef << " " << test->value << endl;
+
+    staticfunction->Invoke();
+    (*staticfunction)();
 
     delete test;
 

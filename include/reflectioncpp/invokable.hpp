@@ -20,6 +20,16 @@ namespace reflectioncpp
 			return Invoke(empty);
 		}
 
+		any operator()()
+		{
+			return Invoke();
+		}
+
+		any operator()(std::vector<any>& params)
+		{
+			return Invoke(params);
+		}
+
 		// could use template arguments to generate the correct defaults...
 	};
 }
