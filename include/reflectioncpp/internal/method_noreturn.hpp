@@ -45,7 +45,7 @@ namespace reflectioncpp
 
 	    }
 
-	    any Invoke(std::vector<any>& params)
+	    any Invoke(std::vector<any>& params) override
 	    {
 	    	if(params.size() < (sizeof...(Args) + 1))
 	    		throw std::out_of_range("too few parameters for method");

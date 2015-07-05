@@ -58,8 +58,8 @@ int main (int argc, char** argv)
     Invokable *getValue  = new MethodImpl<A, int& ()>(&A::GetValue);
     Invokable *increment = new MethodImpl<A, void ()>(&A::Increment);
 
-    Invokable *factoryDefault    = new ConstructorImpl<A ()>();
-    Invokable *factoryInitialize = new ConstructorImpl<A (int)>();
+    Invokable *factoryDefault    = new ConstructorImpl<A* ()>();
+    Invokable *factoryInitialize = new ConstructorImpl<A* (int)>();
 
     // Test the default constructor
     any aInstance = factoryDefault->Invoke();

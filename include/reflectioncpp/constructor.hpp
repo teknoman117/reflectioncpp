@@ -3,6 +3,7 @@
 
 #include <vector>
 
+#include "common.hpp"
 #include "any.hpp"
 #include "type.hpp"
 #include "invokable.hpp"
@@ -12,21 +13,12 @@ namespace reflectioncpp
     template<class, typename Enable = void>
     class ConstructorImpl;
 
-    // Construct with no parameters
-    template<class T, class... Args>
-    class ConstructorImpl<T (Args...), typename std::enable_if<!sizeof...(Args)>::type> : public Invokable
-    {
-    public:
-        any Invoke(std::vector<any>& params)
-        {
-            return any(new T());
-        }
-    };
-
     // Specialization for return type of void, but with arguments
     template<class T, class... Args>
-    class ConstructorImpl<T (Args...), typename std::enable_if<sizeof...(Args)>::type> : public Invokable
+    class ConstructorImpl<T* (Args...), void> : public Invokable
     {
+        static_assert(pointer_attributes<T>::indirection() == 0, "Return type must be a single pointer to a valid class");
+
         // Completed parameter pack, executes method
         template <typename... Ts>
         inline typename std::enable_if<sizeof...(Args) == sizeof...(Ts), T*>::type
@@ -51,7 +43,7 @@ namespace reflectioncpp
         }
 
     public:
-        any Invoke(std::vector<any>& params)
+        any Invoke(std::vector<any>& params) override
         {
             if(sizeof...(Args) > params.size())
                 throw std::out_of_range("too few parameters for constructor");
