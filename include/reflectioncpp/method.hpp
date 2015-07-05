@@ -10,17 +10,10 @@
 
 #include "type.hpp"
 #include "any.hpp"
+#include "invokable.hpp"
 
 namespace reflectioncpp
 {
-	// Method invoke base class
-	class Method
-	{
-	public:
-	    // Can we use templates to handle the void return case
-	    virtual any Invoke(void *instance, std::vector<any>& params) = 0;
-	};
-
 	// Method invoke implementation
 	template<class,class, typename Enable = void>
 	class MethodImpl;

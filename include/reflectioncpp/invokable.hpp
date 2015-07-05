@@ -11,10 +11,17 @@ namespace reflectioncpp
 	class Invokable
 	{
 	public:
-		virtual any Invoke( void *instance, std::vector<any>& params ) = 0;
+		virtual any Invoke( std::vector<any>& params ) = 0;
+
+		// Empty invoke call
+		any Invoke()
+		{
+			std::vector<any> empty;
+			return Invoke(empty);
+		}
 
 		// could use template arguments to generate the correct defaults...
-	}
+	};
 }
 
 #endif
