@@ -42,5 +42,24 @@ DEFINE_TYPE(Ref<uint64_t>::wrapper, uint64_t_Ref);
 DEFINE_TYPE(Ref<float>::wrapper, float_Ref);
 DEFINE_TYPE(Ref<double>::wrapper, double_Ref);
 
+// Export the character types
+DEFINE_TYPE(Ref<const char>::wrapper, char_Const_Ref);
+DEFINE_TYPE(Ref<const wchar_t>::wrapper, wchar_t_Const_Ref);
+DEFINE_TYPE(Ref<const char16_t>::wrapper, char16_t_Const_Ref);
+DEFINE_TYPE(Ref<const char32_t>::wrapper, char32_t_Const_Ref);
+
+// Export the primitive data types
+DEFINE_TYPE(Ref<const bool>::wrapper, bool_Const_Ref);
+DEFINE_TYPE(Ref<const int8_t>::wrapper, int8_t_Const_Ref);
+DEFINE_TYPE(Ref<const uint8_t>::wrapper, uint8_t_Const_Ref);
+DEFINE_TYPE(Ref<const int16_t>::wrapper, int16_t_Const_Ref);
+DEFINE_TYPE(Ref<const uint16_t>::wrapper, uint16_t_Const_Ref);
+DEFINE_TYPE(Ref<const int32_t>::wrapper, int32_t_Const_Ref);
+DEFINE_TYPE(Ref<const uint32_t>::wrapper, uint32_t_Const_Ref);
+DEFINE_TYPE(Ref<const int64_t>::wrapper, int64_t_Const_Ref);
+DEFINE_TYPE(Ref<const uint64_t>::wrapper, uint64_t_Const_Ref);
+DEFINE_TYPE(Ref<const float>::wrapper, float_Const_Ref);
+DEFINE_TYPE(Ref<const double>::wrapper, double_Const_Ref);
+
 
 #endif
