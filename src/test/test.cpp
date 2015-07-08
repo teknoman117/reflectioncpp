@@ -6,12 +6,12 @@
 #include <string>
 #include <functional>
 
-#include <reflectioncpp/any.hpp>
-#include <reflectioncpp/type.hpp>
+#include <boost/any.hpp>
 #include <reflectioncpp/method.hpp>
 #include <reflectioncpp/constructor.hpp>
 
 using namespace reflectioncpp;
+using namespace boost;
 using namespace std;
 
 class A
@@ -55,9 +55,6 @@ public:
     }
 };
 
-DEFINE_TYPE(A, A);
-DEFINE_TYPE(string, string);
-
 int main (int argc, char** argv)
 {
     Invokable *derp      = new MethodImpl<A, int (int,float,string)>(&A::Derp);
@@ -72,7 +69,7 @@ int main (int argc, char** argv)
 
     // Test the default constructor
     any aInstance = factoryDefault->Invoke();
-    cout << "type = " << aInstance.type().name << endl;
+    cout << "type = " << aInstance.type().name() << endl;
 
     A *test = any_cast<A *>(aInstance);
     test->value = 5;
@@ -103,7 +100,7 @@ int main (int argc, char** argv)
     (*staticfunction)();
 
     any mol = static2->Invoke();
-    cout << "type = " << mol.type().name << endl;
+    cout << "type = " << mol.type().name() << endl;
 
     delete test;
 

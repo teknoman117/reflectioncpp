@@ -16,7 +16,7 @@ namespace reflectioncpp
 	    // Completed parameter pack, executes method
 	    template <typename... Ts>
 	    inline typename std::enable_if<sizeof...(Args) == sizeof...(Ts), R>::type
-	    _Invoke(T *instance, std::vector<any>::iterator begin, Ts&&... ts)
+	    _Invoke(T *instance, std::vector<boost::any>::iterator begin, Ts&&... ts)
 	    {
 	        // Invoke the method
 	        return (instance->*methodPointer)(std::forward<Ts>(ts)...);
@@ -25,7 +25,7 @@ namespace reflectioncpp
 	    // Builds the parameter pack
 	    template <typename... Ts>
 	    inline typename std::enable_if<sizeof...(Args) != sizeof...(Ts), R>::type
-	    _Invoke(T *instance, std::vector<any>::iterator begin, Ts&&... ts)
+	    _Invoke(T *instance, std::vector<boost::any>::iterator begin, Ts&&... ts)
 	    {
 	        constexpr int index = sizeof...(Args) - sizeof...(Ts) - 1;
 	        static_assert(index >= 0, "incompatible function parameters");
@@ -33,9 +33,9 @@ namespace reflectioncpp
 	        using type = typename std::tuple_element<index, std::tuple<Args...>>::type;
 
 	        //cout << "Unpacking: " << Type<type>::Info().name << " @" << index << endl;
-	        any& param = *(begin + index);
+	        boost::any& param = *(begin + index);
 
-	        return _Invoke(instance, begin, any_cast<type>(param), std::forward<Ts>(ts)... );
+	        return _Invoke(instance, begin, boost::any_cast<type>(param), std::forward<Ts>(ts)... );
 	    }
 
 	public:
@@ -45,14 +45,14 @@ namespace reflectioncpp
 
 	    }
 
-	    any Invoke(std::vector<any>& params) override
+	    boost::any Invoke(std::vector<boost::any>& params) override
 	    {
 	    	if(params.size() < (sizeof...(Args) + 1))
 	    		throw std::out_of_range("too few parameters for method");
 
-	    	T *instance = any_cast<T *>( *params.begin() );
+	    	T *instance = boost::any_cast<T *>( *params.begin() );
 			_Invoke(instance, params.begin() + 1);
-			return any();
+			return boost::any();
 	    }
 	};
 
@@ -68,7 +68,7 @@ namespace reflectioncpp
 	    // Completed parameter pack, executes method
 	    template <typename... Ts>
 	    inline typename std::enable_if<sizeof...(Args) == sizeof...(Ts), R>::type
-	    _Invoke(std::vector<any>::iterator begin, Ts&&... ts)
+	    _Invoke(std::vector<boost::any>::iterator begin, Ts&&... ts)
 	    {
 	        // Invoke the method
 	        return (*methodPointer)(std::forward<Ts>(ts)...);
@@ -77,7 +77,7 @@ namespace reflectioncpp
 	    // Builds the parameter pack
 	    template <typename... Ts>
 	    inline typename std::enable_if<sizeof...(Args) != sizeof...(Ts), R>::type
-	    _Invoke(std::vector<any>::iterator begin, Ts&&... ts)
+	    _Invoke(std::vector<boost::any>::iterator begin, Ts&&... ts)
 	    {
 	        constexpr int index = sizeof...(Args) - sizeof...(Ts) - 1;
 	        static_assert(index >= 0, "incompatible function parameters");
@@ -85,9 +85,9 @@ namespace reflectioncpp
 	        using type = typename std::tuple_element<index, std::tuple<Args...>>::type;
 
 	        //cout << "Unpacking: " << Type<type>::Info().name << " @" << index << endl;
-	        any& param = *(begin + index);
+	        boost::any& param = *(begin + index);
 
-	        return _Invoke(begin, any_cast<type>(param), std::forward<Ts>(ts)... );
+	        return _Invoke(begin, boost::any_cast<type>(param), std::forward<Ts>(ts)... );
 	    }
 
 	public:
@@ -97,13 +97,13 @@ namespace reflectioncpp
 
 	    }
 
-	    any Invoke(std::vector<any>& params) override
+	    boost::any Invoke(std::vector<boost::any>& params) override
 	    {
 	    	if(params.size() < sizeof...(Args))
 	    		throw std::out_of_range("too few parameters for method");
 
 			_Invoke(params.begin());
-			return any();
+			return boost::any();
 	    }
 	};
 }

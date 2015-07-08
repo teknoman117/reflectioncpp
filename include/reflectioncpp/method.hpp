@@ -8,8 +8,8 @@
 #include <stdexcept>
 #include <functional>
 
-#include "type.hpp"
-#include "any.hpp"
+#include <boost/any.hpp>
+
 #include "invokable.hpp"
 
 namespace reflectioncpp

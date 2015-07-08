@@ -3,29 +3,28 @@
 
 #include <vector>
 
-#include <reflectioncpp/any.hpp>
-#include <reflectioncpp/type.hpp>
+#include <boost/any.hpp>
 
 namespace reflectioncpp
 {
 	class Invokable
 	{
 	public:
-		virtual any Invoke( std::vector<any>& params ) = 0;
+		virtual boost::any Invoke( std::vector<boost::any>& params ) = 0;
 
 		// Empty invoke call
-		any Invoke()
+		boost::any Invoke()
 		{
-			std::vector<any> empty;
+			std::vector<boost::any> empty;
 			return Invoke(empty);
 		}
 
-		any operator()()
+		boost::any operator()()
 		{
 			return Invoke();
 		}
 
-		any operator()(std::vector<any>& params)
+		boost::any operator()(std::vector<boost::any>& params)
 		{
 			return Invoke(params);
 		}
