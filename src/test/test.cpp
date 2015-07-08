@@ -7,6 +7,8 @@
 #include <functional>
 
 #include <boost/any.hpp>
+#include <boost/range/any_range.hpp>
+
 #include <reflectioncpp/method.hpp>
 #include <reflectioncpp/constructor.hpp>
 
@@ -83,6 +85,11 @@ int main (int argc, char** argv)
         3.14159f,
         std::string("hello, world!"),
     };
+
+    any_range<any, boost::forward_traversal_tag, any&, std::ptrdiff_t> range = args;
+    any_range<any, boost::forward_traversal_tag, any&, std::ptrdiff_t>::iterator sIt = range.begin();
+    any_range<any, boost::forward_traversal_tag, any&, std::ptrdiff_t>::iterator eIt = range.end();
+    cout << "length = " << distance(sIt, eIt) << endl;
 
     // Test a simple test function
     any someInt = derp->Invoke(args);

@@ -2,6 +2,7 @@
 #define __REFLECTIONCPP_CONSTRUCTOR_HPP__
 
 #include <vector>
+#include <boost/any.hpp>
 
 #include "common.hpp"
 #include "invokable.hpp"

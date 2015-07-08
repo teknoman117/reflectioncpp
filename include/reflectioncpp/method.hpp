@@ -1,7 +1,6 @@
 #ifndef __REFLECTIONCPP_METHOD_HPP__
 #define __REFLECTIONCPP_METHOD_HPP__
 
-#include <iostream>
 #include <vector>
 #include <tuple>
 #include <exception>
