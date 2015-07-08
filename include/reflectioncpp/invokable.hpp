@@ -4,32 +4,28 @@
 #include <vector>
 
 #include <boost/any.hpp>
+#include <boost/range/any_range.hpp>
 
 namespace reflectioncpp
-{
+{	
+	// Wrapper around any container 
+	typedef boost::any_range<boost::any,
+							 boost::forward_traversal_tag,
+							 boost::any&,
+							 std::ptrdiff_t
+							> parameter_range;
+
 	class Invokable
 	{
 	public:
-		virtual boost::any Invoke( std::vector<boost::any>& params ) = 0;
+		virtual boost::any Invoke(const parameter_range& params) const = 0;
+        virtual boost::any Invoke() const = 0;
 
-		// Empty invoke call
-		boost::any Invoke()
-		{
-			std::vector<boost::any> empty;
-			return Invoke(empty);
-		}
-
-		boost::any operator()()
-		{
-			return Invoke();
-		}
-
-		boost::any operator()(std::vector<boost::any>& params)
-		{
-			return Invoke(params);
-		}
-
-		// could use template arguments to generate the correct defaults...
+        // Invoke with initializer list
+        inline boost::any InvokeWithList(const std::initializer_list<boost::any>& initializer) const
+        {
+            return Invoke(initializer);
+        }
 	};
 }
 

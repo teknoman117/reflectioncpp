@@ -21,7 +21,7 @@ namespace reflectioncpp
         // Completed parameter pack, executes method
         template <typename... Ts>
         inline typename std::enable_if<sizeof...(Args) == sizeof...(Ts), T*>::type
-        _Construct(std::vector<boost::any>::iterator begin, Ts&&... ts)
+        _Construct(parameter_range::const_iterator it, Ts&&... ts) const
         {
             // Invoke the constructor
             return new T(std::forward<Ts>(ts)...);
@@ -30,24 +30,35 @@ namespace reflectioncpp
         // Builds the parameter pack
         template <typename... Ts>
         inline typename std::enable_if<sizeof...(Args) != sizeof...(Ts), T*>::type
-        _Construct(std::vector<boost::any>::iterator begin, Ts&&... ts)
+        _Construct(parameter_range::const_iterator it, Ts&&... ts) const
         {
-            constexpr int index = sizeof...(Args) - sizeof...(Ts) - 1;
-            static_assert(index >= 0, "incompatible function parameters");
+            // Use tuple_element to get the type of this parameter
+            using type = typename std::tuple_element<
+                                      sizeof...(Ts), 
+                                      std::tuple<Args...>
+                                  >::type;
 
-            // Add the parameter to the function call 
-            using type = typename std::tuple_element<index, std::tuple<Args...>>::type;
-            boost::any& param = *(begin + index);
-            return _Construct(begin, boost::any_cast<type>(param), std::forward<Ts>(ts)... );
+            // Append the parameter
+            boost::any& param = *it;
+            return _Construct(++it, std::forward<Ts>(ts)..., boost::any_cast<type>(param) );
         }
 
     public:
-        boost::any Invoke(std::vector<boost::any>& params) override
+        boost::any Invoke(const parameter_range& params) const override
         {
-            if(sizeof...(Args) > params.size())
+            const size_t length = std::distance(params.begin(), params.end());
+            if(sizeof...(Args) > length)
                 throw std::out_of_range("too few parameters for constructor");
 
             return boost::any(_Construct(params.begin()));
+        }
+
+        boost::any Invoke() const override
+        {
+            if(sizeof...(Args) != 0)
+                throw std::out_of_range("too few parameters for constructor");
+
+            return boost::any(_Construct(parameter_range::iterator()));
         }
     };
 }

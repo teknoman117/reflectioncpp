@@ -16,42 +16,43 @@ namespace reflectioncpp
 	    // Completed parameter pack, executes method
 	    template <typename... Ts>
 	    inline typename std::enable_if<sizeof...(Args) == sizeof...(Ts), R>::type
-	    _Invoke(T *instance, std::vector<boost::any>::iterator begin, Ts&&... ts)
+	    _Invoke(T *instance, parameter_range::const_iterator it, Ts&&... ts) const
 	    {
 	        // Invoke the method
-	        return (instance->*methodPointer)(std::forward<Ts>(ts)...);
+	        (instance->*methodPointer)(std::forward<Ts>(ts)...);
 	    }
 
 	    // Builds the parameter pack
 	    template <typename... Ts>
 	    inline typename std::enable_if<sizeof...(Args) != sizeof...(Ts), R>::type
-	    _Invoke(T *instance, std::vector<boost::any>::iterator begin, Ts&&... ts)
+	    _Invoke(T *instance, parameter_range::const_iterator it, Ts&&... ts) const
 	    {
-	        constexpr int index = sizeof...(Args) - sizeof...(Ts) - 1;
-	        static_assert(index >= 0, "incompatible function parameters");
-
-	        using type = typename std::tuple_element<index, std::tuple<Args...>>::type;
-
-	        //cout << "Unpacking: " << Type<type>::Info().name << " @" << index << endl;
-	        boost::any& param = *(begin + index);
-
-	        return _Invoke(instance, begin, boost::any_cast<type>(param), std::forward<Ts>(ts)... );
+	        using type = typename std::tuple_element<sizeof...(Ts), std::tuple<Args...>>::type;
+	        boost::any& param = it;
+	        return _Invoke(instance, it, std::forward<Ts>(ts)..., boost::any_cast<type>(param));
 	    }
 
 	public:
 	    MethodImpl(PointerType methodPointer)
 	        : methodPointer(methodPointer)
 	    {
-
 	    }
 
-	    boost::any Invoke(std::vector<boost::any>& params) override
+	    boost::any Invoke() const override
 	    {
-	    	if(params.size() < (sizeof...(Args) + 1))
-	    		throw std::out_of_range("too few parameters for method");
+            throw std::out_of_range("too few parameters for constructor");
+			return boost::any();
+	    }
 
-	    	T *instance = boost::any_cast<T *>( *params.begin() );
-			_Invoke(instance, params.begin() + 1);
+	    boost::any Invoke(const parameter_range& params) const override
+	    {
+            const size_t length = std::distance(params.begin(), params.end());
+            if((sizeof...(Args) + 1) > length)
+                throw std::out_of_range("too few parameters for constructor");
+
+            parameter_range::iterator it = params.begin();
+	    	T *instance = boost::any_cast<T *>( *(it++) );
+			_Invoke(instance, it);
 			return boost::any();
 	    }
 	};
@@ -68,39 +69,42 @@ namespace reflectioncpp
 	    // Completed parameter pack, executes method
 	    template <typename... Ts>
 	    inline typename std::enable_if<sizeof...(Args) == sizeof...(Ts), R>::type
-	    _Invoke(std::vector<boost::any>::iterator begin, Ts&&... ts)
+	    _Invoke(parameter_range::const_iterator it, Ts&&... ts) const
 	    {
 	        // Invoke the method
-	        return (*methodPointer)(std::forward<Ts>(ts)...);
+	        (*methodPointer)(std::forward<Ts>(ts)...);
 	    }
 
 	    // Builds the parameter pack
 	    template <typename... Ts>
 	    inline typename std::enable_if<sizeof...(Args) != sizeof...(Ts), R>::type
-	    _Invoke(std::vector<boost::any>::iterator begin, Ts&&... ts)
+	    _Invoke(parameter_range::const_iterator it, Ts&&... ts) const
 	    {
-	        constexpr int index = sizeof...(Args) - sizeof...(Ts) - 1;
-	        static_assert(index >= 0, "incompatible function parameters");
-
-	        using type = typename std::tuple_element<index, std::tuple<Args...>>::type;
-
-	        //cout << "Unpacking: " << Type<type>::Info().name << " @" << index << endl;
-	        boost::any& param = *(begin + index);
-
-	        return _Invoke(begin, boost::any_cast<type>(param), std::forward<Ts>(ts)... );
+	        using type = typename std::tuple_element<sizeof...(Ts), std::tuple<Args...>>::type;
+	        boost::any& param = *it;
+	        return _Invoke(++it, std::forward<Ts>(ts)..., boost::any_cast<type>(param));
 	    }
 
 	public:
 	    MethodImpl(PointerType methodPointer)
 	        : methodPointer(methodPointer)
 	    {
-
 	    }
 
-	    boost::any Invoke(std::vector<boost::any>& params) override
+	    boost::any Invoke() const override
 	    {
-	    	if(params.size() < sizeof...(Args))
+	    	if(sizeof...(Args))
 	    		throw std::out_of_range("too few parameters for method");
+
+			_Invoke(parameter_range::iterator());
+			return boost::any();
+	    }
+
+	    boost::any Invoke(const parameter_range& params) const override
+	    {
+            const size_t length = std::distance(params.begin(), params.end());
+            if(sizeof...(Args) > length)
+                throw std::out_of_range("too few parameters for constructor");
 
 			_Invoke(params.begin());
 			return boost::any();
