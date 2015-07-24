@@ -56,6 +56,41 @@ public:
     }
 };
 
+class Accessible
+{
+public:
+    virtual boost::any Get(boost::any instance) = 0;
+    virtual void Set(boost::any instance, boost::any param) = 0;
+};
+
+template <class T, typename M, typename Enabled = void>
+class Member;
+
+template <class T, typename M>
+class Member<T, M, void> : public Accessible
+{
+    typedef M T::*PointerType;
+    PointerType memberPointer;
+
+public:
+    Member(PointerType memberPointer)
+        : memberPointer(memberPointer)
+    {
+    }
+
+    void Set(boost::any instance, boost::any param)
+    {
+        T* instancePtr = boost::any_cast<T *>(instance);
+        instancePtr->*memberPointer = boost::any_cast<M>(param);
+    }
+
+    boost::any Get(boost::any instance)
+    {
+        T* instancePtr = boost::any_cast<T *>(instance);
+        return any(instancePtr->*memberPointer);
+    }
+};
+
 int main (int argc, char** argv)
 {
     Invokable *derp      = new MethodImpl<A, int (int,float,string)>(&A::Derp);
@@ -67,6 +102,8 @@ int main (int argc, char** argv)
 
     Invokable *staticfunction = new MethodImpl<void, void ()>(&A::Herp);
     Invokable *static2 = new MethodImpl<void, int& ()>(&A::meaningoflife);
+
+    Accessible *member = new Member<A, int>(&A::value);
 
     // Test the default constructor
     any aInstance = factoryDefault->Invoke();
@@ -90,12 +127,16 @@ int main (int argc, char** argv)
     cout << "some int = " << any_cast<int>(someInt) << endl;
 
     // Test reference wrappers
-    any someIntRef = getValue->Invoke(args);
+    any someIntRef = getValue->InvokeWithList({test});
     int& valueRef = any_cast<Ref<int>::wrapper>(someIntRef).get();
 
     cout << "values before ref: " << valueRef << " " << test->value << endl;
-    increment->Invoke(args);
+    increment->InvokeWithList({test});
     cout << "values after ref: " << valueRef << " " << test->value << endl;
+
+    cout << "accessor get: " << any_cast<int>(member->Get(test)) << endl;
+    member->Set(test, 43);
+    cout << "accessor get: " << any_cast<int>(member->Get(test)) << endl;
 
     staticfunction->Invoke();
 
